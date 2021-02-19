@@ -12,8 +12,8 @@ $Global:ErrorProvider = New-Object System.Windows.Forms.ErrorProvider
 $Form = New-Object system.Windows.Forms.Form
 $Form.AutoScaleMode = 'Font'
 $Form.StartPosition = 'Manual'
-$Form.Text = 'Inventory Helper Beta 0.2.4'
-$Form.ClientSize = "180,300"
+$Form.Text = 'Inventory Helper Beta 0.2.5'
+$Form.ClientSize = "180,250"
 $Form.Font = 'Segoe UI, 18pt'
 $Form.TopMost = $true
 $Form.BackColor = '#324e7a'
@@ -53,7 +53,7 @@ $PCC_TextBox = New-Object system.Windows.Forms.TextBox
 $PCC_TextBox.multiline = $false
 #$PCC_TextBox.Font = 'Segoe UI, 15pt'
 $PCC_TextBox.Backcolor = '#1b3666'
-$PCC_TextBox.Text = 'PCC Number'
+$PCC_TextBox.Text = 'PCC/Serial Number'
 $PCC_TextBox.ForeColor = '#a3a3a3' 
 $PCC_TextBox.Dock = 'Fill'
 $PCC_TextBox.TabIndex = 3
@@ -91,8 +91,8 @@ $LayoutPanel.RowCount = 5
 [void]$LayoutPanel.ColumnStyles.Add((new-object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, .5)))
 [void]$LayoutPanel.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 1)))
 [void]$LayoutPanel.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 1)))
+[void]$LayoutPanel.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 1)))
 [void]$LayoutPanel.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 2)))
-[void]$LayoutPanel.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 5)))
 [void]$LayoutPanel.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, .25)))
 
 $LayoutPanel.Controls.Add($Campus_Dropdown, 1, 0)
@@ -172,10 +172,10 @@ $LayoutPanel_Popup.RowCount = 4
 [void]$LayoutPanel_Popup.ColumnStyles.Add((new-object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 10)))
 [void]$LayoutPanel_Popup.ColumnStyles.Add((new-object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 1)))
 
-[void]$LayoutPanel_Popup.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 60)))
-[void]$LayoutPanel_Popup.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 60)))
-[void]$LayoutPanel_Popup.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 60)))
-[void]$LayoutPanel_Popup.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 10)))
+[void]$LayoutPanel_Popup.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 6)))
+[void]$LayoutPanel_Popup.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 6)))
+[void]$LayoutPanel_Popup.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 6)))
+[void]$LayoutPanel_Popup.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 1)))
 
 $LayoutPanel_Popup.Controls.Add($Assigneduser_TextBox_Popup, 1, 0)
 $LayoutPanel_Popup.SetColumnSpan($Assigneduser_TextBox_Popup, 2)
@@ -296,7 +296,7 @@ Function Find-Asset($PCCNumber, $Campus, $Room) {
     
     try {
         Write-Log -Message "Searching for $($PCCNumber) at $($Campus): $($Room)"
-        $InventoryTableAssets = $Inventory.FindElementByXPath('//*[@id="report_R3257120268858381"]/tbody[2]/tr/td/table/tbody').FindElementsByTagName('tr')
+        $InventoryTableAssets = $Inventory.FindElementByXPath('/html/body/form/div/table/tbody/tr/td[1]/section[2]/div[2]/div/table/tbody[2]/tr/td/table/tbody').FindElementsByTagName('tr')
         for ($i = 0; $i -le $InventoryTableAssets.Count; $i++) {
             $InventoryTableAsset = $InventoryTableAssets[$i].FindElementsByTagName('td')
             if (($InventoryTableAsset[1].text -eq $PCC_TextBox.Text) -or ($InventoryTableAsset[6].text -eq $PCC_TextBox.Text)) {
@@ -434,7 +434,7 @@ $Search_Button.Add_MouseUp( {
                     Write-Log -Message "Clicking edit for asset for $($PCC_TextBox.Text)"
                     #NOTE: Only clicks on the first entry, may need to load whole table in future to verify only 1 asset found
                     # Or find a better way of finding the asset in itam
-                    $ITAM.FindElementsByXPath('//*[@id="3070711880137337"]/tbody/tr[2]/td[1]/a').Click()
+                    $ITAM.FindElementsByXPath('/html/body/form/div[5]/table/tbody/tr/td[1]/div/div[2]/div/div/div/div/div[2]/div[2]/div[6]/div[1]/table/tbody/tr[2]/td[1]/a').Click()
                 }
                 catch {
                     Write-Log -Message "Could not find or click edit option for $($PCC_TextBox.Text)" -LogError $_.Exception.Message -Level ERROR
@@ -483,7 +483,7 @@ $Search_Button.Add_MouseUp( {
         
                         # Clicking Apply Changes button
                         #$WebBrowser.ExecuteScript("apex.submit('SAVE')")
-                        $ITAM.FindElementByXPath('//*[@id="R3052711890100393"]/div[1]/div/div[2]/button[3]').Click()
+                        $ITAM.FindElementByXPath('/html/body/form/div[5]/table/tbody/tr/td[1]/div[1]/div[1]/div/div[2]/button[2]').Click()
                         $ITAM.Url = ("https://pimaapps.pima.edu/pls/htmldb_pdat/f?p=402:26:$($ITAM.FindElementById('pInstance').getattribute('value')):::::")
                         #Remove filter
                         $ITAM.FindElementByXPath('/html/body/form/div[5]/table/tbody/tr/td[1]/div/div[2]/div/div/div/div/div[2]/div[2]/div[2]/div[2]/ul/li/span[4]/button').Click()
@@ -531,7 +531,7 @@ $Search_Button.Add_MouseUp( {
                 }
             }
             $PCC_TextBox.Clear()
-            $PCC_TextBox.Focused
+            $PCC_TextBox.Select()
         }
     })
 

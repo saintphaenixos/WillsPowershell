@@ -1,4 +1,3 @@
-#Requires -Modules Selenium
 If (-not(Get-InstalledModule Selenium -ErrorAction silentlycontinue)) {
     Install-Module Selenium -Confirm:$False -Force -Scope CurrentUser
 }
@@ -12,7 +11,7 @@ $Global:ErrorProvider = New-Object System.Windows.Forms.ErrorProvider
 $Form = New-Object system.Windows.Forms.Form
 $Form.AutoScaleMode = 'Font'
 $Form.StartPosition = 'Manual'
-$Form.Text = 'Inventory Helper Beta 0.2.5'
+$Form.Text = 'Inventory Helper Beta 0.3.2'
 $Form.ClientSize = "180,250"
 $Form.Font = 'Segoe UI, 18pt'
 $Form.TopMost = $true
@@ -72,9 +71,19 @@ $Search_Button.FlatAppearance.BorderSize = 0
 $Form.AcceptButton = $Search_Button
 #$Form.AcceptButton.DialogResult = 'OK'
 
-$StatusBar = New-Object System.Windows.Forms.StatusBar
+$Option_Button = New-Object system.Windows.Forms.Button
+$Option_Button.Text = "Options"
+$Option_Button.Dock = 'Fill'
+$Option_Button.TabIndex = 5
+$Option_Button.Backcolor = '#616161'
+$Option_Button.ForeColor = '#eeeeee' 
+$Option_Button.FlatStyle = 1
+$Option_Button.FlatAppearance.BorderSize = 0
+#$Form.AcceptButton.DialogResult = 'OK'
+
+$StatusBar = New-Object System.Windows.Forms.Label
 $StatusBar.Text = "Ready"
-$StatusBar.SizingGrip = $false
+#$StatusBar.SizingGrip = $false
 $StatusBar.Font = 'Segoe UI, 12pt'
 $StatusBar.Dock = 'Bottom'
 $StatusBar.Backcolor = '#1b3666'
@@ -84,7 +93,7 @@ $LayoutPanel = New-Object System.Windows.Forms.TableLayoutPanel
 $LayoutPanel.Dock = "Fill"
 $LayoutPanel.ColumnCount = 3
 $LayoutPanel.RowCount = 5
-#$LayoutPanel.CellBorderStyle = 1
+$LayoutPanel.CellBorderStyle = 1
 
 [void]$LayoutPanel.ColumnStyles.Add((new-object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, .5)))
 [void]$LayoutPanel.ColumnStyles.Add((new-object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 10)))
@@ -99,7 +108,63 @@ $LayoutPanel.Controls.Add($Campus_Dropdown, 1, 0)
 $LayoutPanel.Controls.Add($Room_Dropdown, 1, 1)
 $LayoutPanel.Controls.Add($PCC_TextBox, 1, 2)
 $LayoutPanel.Controls.Add($Search_Button, 1, 3)
+$LayoutPanel.Controls.Add($Option_Button, 2, 4)
 $Form.controls.AddRange(@($LayoutPanel, $StatusBar))
+#EndRegion
+
+#region Option Popup
+$Option_Popup = New-Object system.Windows.Forms.Form
+$Option_Popup.Text = 'Options'
+$Option_Popup.Backcolor = '#324e7a'
+$Option_Popup.ForeColor = '#eeeeee' 
+$Option_Popup.FormBorderStyle = "FixedDialog"
+$Option_Popup.ClientSize = "$($Form.Size.Width),220"
+$Option_Popup.TopMost = $true
+$Option_Popup.StartPosition = 'Manual'
+#$Option_Popup.ControlBox = $false
+$Option_Popup.AutoSize = $true
+
+$ScanLog_Button = New-Object system.Windows.Forms.Button
+$ScanLog_Button.Text = "Open Scan Log"
+$ScanLog_Button.Backcolor = '#616161'
+$ScanLog_Button.ForeColor = '#eeeeee' 
+$ScanLog_Button.Dock = 'Fill'
+$ScanLog_Button.TabIndex = 3
+$ScanLog_Button.Font = 'Segoe UI, 18pt'
+$ScanLog_Button.FlatStyle = 1
+$ScanLog_Button.FlatAppearance.BorderSize = 0
+
+$ErrorLog_Button = New-Object system.Windows.Forms.Button
+$ErrorLog_Button.Text = "Open Error Log"
+$ErrorLog_Button.Backcolor = '#616161'
+$ErrorLog_Button.ForeColor = '#eeeeee' 
+$ErrorLog_Button.Dock = 'Fill'
+$ErrorLog_Button.TabIndex = 3
+$ErrorLog_Button.Font = 'Segoe UI, 18pt'
+$ErrorLog_Button.FlatStyle = 1
+$ErrorLog_Button.FlatAppearance.BorderSize = 0
+
+$LayoutPanel_Options = New-Object System.Windows.Forms.TableLayoutPanel
+$LayoutPanel_Options.Dock = "Fill"
+$LayoutPanel_Options.ColumnCount = 4
+$LayoutPanel_Options.RowCount = 4
+#$LayoutPanel_Options.CellBorderStyle = 1
+[void]$LayoutPanel_Options.ColumnStyles.Add((new-object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 1)))
+[void]$LayoutPanel_Options.ColumnStyles.Add((new-object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 10)))
+[void]$LayoutPanel_Options.ColumnStyles.Add((new-object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 10)))
+[void]$LayoutPanel_Options.ColumnStyles.Add((new-object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 1)))
+
+[void]$LayoutPanel_Options.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 60)))
+[void]$LayoutPanel_Options.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 60)))
+[void]$LayoutPanel_Options.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 60)))
+[void]$LayoutPanel_Options.RowStyles.Add((new-object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 10)))
+
+$LayoutPanel_Options.Controls.Add($ScanLog_Button, 1, 0)
+$LayoutPanel_Options.SetColumnSpan($ScanLog_Button, 2)
+$LayoutPanel_Options.Controls.Add($ErrorLog_Button, 1, 1)
+$LayoutPanel_Options.SetColumnSpan($ErrorLog_Button, 2)
+$Option_Popup.controls.Add($LayoutPanel_Options)
+
 #EndRegion
 
 #region Asset Update Popup
@@ -199,8 +264,7 @@ $Login_Form.AutoSize = $true
 
 $Username_TextBox = New-Object system.Windows.Forms.TextBox
 $Username_TextBox.multiline = $false
-$Username_TextBox.Text = "Username"
-$Username_TextBox.Select()
+$Username_TextBox.Text = $env:USERNAME
 $Username_TextBox.Font = 'Segoe UI, 18pt'
 $Username_TextBox.Backcolor = '#1b3666'
 $Username_TextBox.ForeColor = '#a3a3a3' 
@@ -220,6 +284,7 @@ $Password_TextBox.TabIndex = 2
 $Password_TextBox.BorderStyle = 1
 $Password_TextBox.Anchor = 'Left,Right'
 $Password_TextBox.PasswordChar = '*'
+$Password_TextBox.Select()
 
 $OK_Button_Login = New-Object system.Windows.Forms.Button
 $OK_Button_Login.Text = "Login"
@@ -272,6 +337,11 @@ $Login_Form.controls.Add($LayoutPanel_Login)
 # Copy above to main code^^^
 # Code below for basic UI functions
 
+#region Fun
+$Inventoried = New-Object System.Media.SoundPlayer
+$Inventoried.SoundLocation = "$PSScriptRoot\identify.wav"
+#EndRegion
+
 $screen = [System.Windows.Forms.Screen]::AllScreens
 $Inventory = Start-SeFirefox -PrivateBrowsing -ImplicitWait 5 -Quiet
 $Inventory.Manage().Window.Position = "0,0"
@@ -288,18 +358,29 @@ $AssetUpdate_Popup.Location = "$($Form.Location.X),$($PCC_Textbox.Location.Y)"
 @('1', '2', '3', '4', '5', '6', '7', '8') | ForEach-Object { [void] $Campus_Dropdown.Items.Add($_) }
 @('1', '2', '3', '4', '5') | ForEach-Object { [void] $Status_Dropdown_Popup.Items.Add($_) }
 
-$Campus_Dropdown.add_SelectedIndexChanged({
-    $Room_Dropdown.Enabled = $false
-    $Room_Dropdown.Text = 'Select Room'
-    $Room_Dropdown.Items.Clear()
-    @('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15') | ForEach-Object { [void] $Room_Dropdown.Items.Add($_) }
-    $Room_Dropdown.Enabled = $true
-})
+$Campus_Dropdown.add_SelectedIndexChanged( {
+        $Room_Dropdown.Enabled = $false
+        $Room_Dropdown.Text = 'Select Room'
+        $Room_Dropdown.Items.Clear()
+        @('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15') | ForEach-Object { [void] $Room_Dropdown.Items.Add($_) }
+        $Room_Dropdown.Enabled = $true
+    })
 
 $Search_Button.Add_MouseUp( {
         $AssetUpdate_Popup.ShowDialog()
+        $Inventoried.playsync()
     })
 
+$Option_Button.Add_MouseUp( {
+        $Option_Popup.ShowDialog()
+    })
+$ScanLog_Button.Add_MouseUp( {
+        $Option_Popup.DialogResult = 'OK'
+    })
+$ErrorLog_Button.Add_MouseUp( {
+        $Option_Popup.DialogResult = 'OK'
+    })
+    
 $OK_Button_Popup.Add_MouseUp( {
         $AssetUpdate_Popup.Close()
     })
@@ -335,3 +416,4 @@ elseif ($Login_Form.DialogResult -eq 'Cancel') {
 }
 Stop-SeDriver $ITAM
 Stop-SeDriver $Inventory
+
